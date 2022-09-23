@@ -1,4 +1,5 @@
 const https = require("https");
+const fs = require("fs");
 
 https
   .get("https://jsonplaceholder.typicode.com/users", (res) => {
@@ -15,6 +16,22 @@ https
     res.on("end", () => {
       console.log("Response ended: ");
       const users = JSON.parse(Buffer.concat(data).toString());
+      const headerColumn = Object.keys(users[0]).toString();
+      let dataString = "";
+      dataString += headerColumn + "\n";
+      users.map((user) => {
+        dataString +=
+          Object.keys(user)
+            .map((key) => {
+              if (typeof user[key] === "object") {
+                return JSON.stringify(user[key]);
+              }
+              return user[key];
+            })
+            .toString() + "\n";
+      });
+
+      fs.writeFileSync("result.csv", dataString);
 
       console.log(users);
     });
